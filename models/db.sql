@@ -1,0 +1,70 @@
+CREATE DATABASE usof;
+CREATE USER 'idashchenk'@'localhost' IDENTIFIED BY 'securepass';
+GRANT ALL PRIVILEGES ON usof.* TO 'idashchenk'@'localhost';
+
+use usof;
+CREATE TABLE IF NOT EXISTS users(
+    id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    login VARCHAR(15) NOT NULL UNIQUE,
+    email VARCHAR(20) NOT NULL UNIQUE,
+    password VARCHAR(75) NOT NULL,
+    full_name VARCHAR(255) NOT NULL UNIQUE,
+    photo VARCHAR(256) DEFAULT 'avatar/avatar.png',
+    role ENUM('admin', 'user') DEFAULT 'user'
+);
+CREATE TABLE IF NOT EXISTS categories(
+    id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    title VARCHAR(256) NOT NULL UNIQUE
+);
+CREATE TABLE IF NOT EXISTS posts(
+    id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    user_id INT,
+    title VARCHAR(100) NOT NULL,
+    info VARCHAR(256) NOT NULL,
+    time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE SET NULL
+);
+
+CREATE TABLE IF NOT EXISTS comments(
+    id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    user_id INT,
+    content VARCHAR(256) Not NULL,
+    post_id INT,
+    time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE SET NULL,
+    FOREIGN KEY(post_id) REFERENCES posts(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS avatars(
+    id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    file VARCHAR(256) NOT NULL DEFAULT "avatar.png",
+    size INT NOT NULL,
+    path VARCHAR(256) NOT NULL DEFAULT 'avatar/avatar.png',
+    user_id INT,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
+);
+
+CREATE TABLE IF NOT EXISTS post_categories(
+    id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    post_id INT,
+    category_id INT,
+    FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE,
+    FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS likeposts(
+    id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    user_id INT ,
+    post_id INT ,
+    time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL,
+    FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE
+);
+CREATE TABLE IF NOT EXISTS likecomments(
+    id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    user_id INT ,
+    comment_id INT,
+    time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL,
+    FOREIGN KEY (comment_id) REFERENCES comments(id) ON DELETE CASCADE
+);
